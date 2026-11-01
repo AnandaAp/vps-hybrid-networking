@@ -1,0 +1,29 @@
+# --- Secrets & credentials: never commit real values ---
+.env
+.env.*
+*.token
+token
+*credentials*.json
+*.key
+*.pem
+*.crt
+*.p12
+
+# Real server configs (publish examples as Caddyfile.example instead)
+Caddyfile
+Caddyfile.*
+!Caddyfile.example
+cloudflared/
+.cloudflared/
+
+# --- Editors & OS ---
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# --- Local scratch ---
+notes/
+*.local.md
