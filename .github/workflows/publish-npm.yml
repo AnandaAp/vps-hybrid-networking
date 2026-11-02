@@ -1,0 +1,32 @@
+name: Publish to npm
+
+# Publishes this package to npmjs.com from GitHub Actions using npm
+# Trusted Publishing (OIDC) — no npm tokens, no 2FA prompts, and
+# provenance is attached automatically.
+# The trusted publisher entry on npmjs.com must name this exact file.
+# Runs whenever a GitHub Release is published; can also be run manually
+# from the Actions tab (it will fail harmlessly if the version in
+# package.json is already on npm).
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Use a trusted-publishing-capable npm
+        run: npm install -g npm@latest
+      - name: Publish to npm
+        run: npm publish
