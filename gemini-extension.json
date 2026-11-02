@@ -1,1 +1,1 @@
-{"description":"Serve a VPS behind NAT/CGNAT with inbound 80/443 blocked: Tailscale for private admin access, Cloudflare Tunnel + Caddy with DNS-01 TLS for public ingress. Staged setup guide, smoke tests, and troubleshooting runbook.","name":"vps-hybrid-networking","version":"1.0.1"}
+{"description":"Serve a VPS behind NAT/CGNAT with inbound 80/443 blocked: Tailscale for private admin access, Cloudflare Tunnel + Caddy with DNS-01 TLS for public ingress. Staged setup guide, smoke tests, and troubleshooting runbook.","name":"vps-hybrid-networking","version":"1.0.2"}
