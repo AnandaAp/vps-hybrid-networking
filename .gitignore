@@ -27,3 +27,6 @@ Thumbs.db
 # --- Local scratch ---
 notes/
 *.local.md
+
+# Node (local npm pack/installer testing only)
+node_modules/

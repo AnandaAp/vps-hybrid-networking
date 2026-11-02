@@ -1,0 +1,1 @@
+{"interface":{"displayName":"Anlian Skills"},"name":"anlian-skills","plugins":[{"category":"Developer Tools","name":"vps-hybrid-networking","policy":{"authentication":"NONE","installation":"AVAILABLE"},"source":{"path":"./","source":"local"}}]}
