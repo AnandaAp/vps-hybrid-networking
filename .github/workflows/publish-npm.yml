@@ -1,11 +1,14 @@
 name: Publish to npm
 
-# Publishes this package to npmjs.com from GitHub Actions using npm
+# Stages this package on npmjs.com from GitHub Actions using npm
 # Trusted Publishing (OIDC) — no npm tokens, no 2FA prompts, and
 # provenance is attached automatically.
-# The trusted publisher entry on npmjs.com must name this exact file.
+# The trusted publisher entry on npmjs.com must name this exact file,
+# with "Allow npm publish" and "Allow npm dist-tag" left UNCHECKED:
+# this workflow only stages, and a human approves each staged version
+# on npmjs.com (Staged Packages) before it goes live.
 # Runs whenever a GitHub Release is published; can also be run manually
-# from the Actions tab (it will fail harmlessly if the version in
+# from the Actions tab (staging fails harmlessly if the version in
 # package.json is already on npm).
 
 on:
@@ -21,12 +24,12 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 24
+          node-version: 26.12.1
           registry-url: https://registry.npmjs.org
       - name: Use a trusted-publishing-capable npm
         run: npm install -g npm@latest
-      - name: Publish to npm
+      - name: Stage on npm (a human approves it on npmjs.com)
         run: npm stage publish
