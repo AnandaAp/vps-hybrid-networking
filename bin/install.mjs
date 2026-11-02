@@ -48,18 +48,28 @@ const hermesHome = process.platform === 'win32'
   ? join(process.env.LOCALAPPDATA ?? join(home, 'AppData', 'Local'), 'hermes')
   : join(home, '.hermes');
 
+// Config base for the XDG-style targets (OpenCode, Goose, Amp). Those tools
+// resolve their config dirs the XDG way on macOS and Linux: they use
+// $XDG_CONFIG_HOME when it is set and ~/.config otherwise. (OpenCode does
+// this on every platform via xdg-basedir — on macOS its config lives in
+// ~/.config/opencode, NOT in ~/Library.) Mirror that here so the skill
+// lands where the tools actually look. Windows keeps ~/.config, unchanged.
+const configBase = process.platform === 'win32'
+  ? join(home, '.config')
+  : (process.env.XDG_CONFIG_HOME || join(home, '.config'));
+
 const TARGETS = {
   'claude-code': { label: 'Claude Code', skillsDir: join(home, '.claude', 'skills'), detectDir: join(home, '.claude') },
   'antigravity': { label: 'Antigravity', skillsDir: join(home, '.gemini', 'config', 'skills'), detectDir: join(home, '.gemini') },
   'codex': { label: 'Codex / agents standard', skillsDir: join(home, '.agents', 'skills'), detectDir: join(home, '.agents') },
   'gemini-cli': { label: 'Gemini CLI', skillsDir: join(home, '.gemini', 'skills'), detectDir: join(home, '.gemini') },
-  'opencode': { label: 'OpenCode', skillsDir: join(home, '.config', 'opencode', 'skills'), detectDir: join(home, '.config', 'opencode') },
+  'opencode': { label: 'OpenCode', skillsDir: join(configBase, 'opencode', 'skills'), detectDir: join(configBase, 'opencode') },
   'cursor': { label: 'Cursor', skillsDir: join(home, '.cursor', 'skills'), detectDir: join(home, '.cursor') },
   'hermes': { label: 'Hermes Agent', skillsDir: join(hermesHome, 'skills'), detectDir: hermesHome },
   'cline': { label: 'Cline', skillsDir: join(home, '.agents', 'skills'), detectDir: join(home, '.cline') },
   'roo': { label: 'Roo Code', skillsDir: join(home, '.roo', 'skills'), detectDir: join(home, '.roo') },
-  'goose': { label: 'Goose', skillsDir: join(home, '.config', 'goose', 'skills'), detectDir: join(home, '.config', 'goose') },
-  'amp': { label: 'Amp', skillsDir: join(home, '.config', 'agents', 'skills'), detectDir: join(home, '.config', 'amp') },
+  'goose': { label: 'Goose', skillsDir: join(configBase, 'goose', 'skills'), detectDir: join(configBase, 'goose') },
+  'amp': { label: 'Amp', skillsDir: join(configBase, 'agents', 'skills'), detectDir: join(configBase, 'amp') },
   'windsurf': { label: 'Windsurf', skillsDir: join(home, '.codeium', 'windsurf', 'skills'), detectDir: join(home, '.codeium') },
   'kiro-cli': { label: 'Kiro CLI', skillsDir: join(home, '.kiro', 'skills'), detectDir: join(home, '.kiro') },
   'qwen-code': { label: 'Qwen Code', skillsDir: join(home, '.qwen', 'skills'), detectDir: join(home, '.qwen') },
