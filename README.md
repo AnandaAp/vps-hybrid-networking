@@ -72,10 +72,12 @@ Hermes security-scans skills on install. You can also register this repo as a re
 ### npm / npx installer (this repo's own package)
 
 ```bash
-npx vps-hybrid-networking@1.0.3
+npx vps-hybrid-networking@1.0.4
 ```
 
 Auto-detects your installed agents and copies the skill into each one's skills folder. Targets: Claude Code, Antigravity, Codex / agents standard, Gemini CLI, OpenCode, Cursor, Hermes Agent, Cline, Roo Code, Goose, Amp, Windsurf, Kiro CLI, Qwen Code, GitHub Copilot, Trae, and Continue. Useful flags: `--all`, `--agent claude-code,antigravity`, `--list`, `--dry-run`. (If the npm package is not yet published, clone this repo and run `node bin/install.mjs --all` — it is the same code with the same result.)
+
+Runs on **Windows, macOS, and Linux**. Platform notes: on macOS and Linux, the XDG-style targets (OpenCode, Goose, Amp) honor `$XDG_CONFIG_HOME` when it is set — matching how those tools resolve their own config directories (OpenCode uses `~/.config/opencode` on macOS too, not `~/Library`). Hermes uses `%LOCALAPPDATA%\hermes\skills\` on Windows and `~/.hermes/skills/` on macOS/Linux.
 
 ### Manual
 
@@ -88,7 +90,7 @@ The npm installer is built to be boring and auditable:
 - **Zero dependencies** — Node.js standard library only; there is no dependency tree to compromise.
 - **No install hooks** — `package.json` defines no lifecycle scripts, so nothing runs implicitly on `npm install`/`npx`. The installer runs only when you invoke it.
 - **No network, no execution** — the installer never downloads anything and never spawns a process. It only copies the skill files bundled inside the package into a fixed allow-list of well-known agent folders, and it verifies every destination stays inside its allow-listed folder before copying.
-- **Pin the version** (`npx vps-hybrid-networking@1.0.3`) if you want reproducible installs, and read [`bin/install.mjs`](bin/install.mjs) — it is short on purpose.
+- **Pin the version** (`npx vps-hybrid-networking@1.0.4`) if you want reproducible installs, and read [`bin/install.mjs`](bin/install.mjs) — it is short on purpose.
 - Prefer not to run third-party installers at all? Use `npx skills add` (which pulls straight from GitHub) or the manual copy above.
 
 ## What's inside
