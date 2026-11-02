@@ -7,9 +7,81 @@ Instead of fighting the NAT, the architecture splits traffic into two layers:
 - **Public ingress** — Cloudflare Tunnel (`cloudflared`) carries public traffic over an outbound connection to a local **Caddy** reverse proxy, which serves real Let's Encrypt certificates obtained via the **DNS-01 challenge** (no inbound port needed).
 - **Private access** — admin tools, internal dashboards, terminal agents, and local AI services are exposed **only** over a **Tailscale** (WireGuard) mesh. Nothing internal touches the public internet.
 
+This is not a theoretical design: it is the exact architecture running [anlian.web.id](https://anlian.web.id) in production, written up after the NAT diagnosis that led to it.
+
+## Installation
+
+The skill lives in [`skills/vps-hybrid-networking/`](skills/vps-hybrid-networking/) and this repo is packaged for the major agentic CLIs. Pick your tool:
+
+### Any CLI — the universal installer (skills.sh)
+
+```bash
+npx skills add AnandaAp/vps-hybrid-networking
+```
+
+The [skills CLI](https://skills.sh) auto-detects 75+ agents (Claude Code, Codex, Cursor, OpenCode, Gemini CLI, Antigravity, Windsurf, …) and installs the skill into the right folder for each. Add `-g` for a global install, or `--agent <name>` to target one agent.
+
+### Claude Code — plugin marketplace
+
+```
+/plugin marketplace add AnandaAp/vps-hybrid-networking
+/plugin install vps-hybrid-networking@anlian-skills
+```
+
+### Antigravity (`agy`)
+
+```bash
+git clone https://github.com/AnandaAp/vps-hybrid-networking
+agy plugin validate --strict ./vps-hybrid-networking
+agy plugin install ./vps-hybrid-networking
+```
+
+### Codex — plugin marketplace
+
+```bash
+codex plugin marketplace add AnandaAp/vps-hybrid-networking
+codex plugin add vps-hybrid-networking@anlian-skills
+```
+
+### Gemini CLI
+
+As a skill:
+
+```bash
+gemini skills install https://github.com/AnandaAp/vps-hybrid-networking.git --path skills/vps-hybrid-networking --consent
+```
+
+Or as an extension (bundles the same skill):
+
+```bash
+gemini extensions install https://github.com/AnandaAp/vps-hybrid-networking
+```
+
+### npm / npx installer (this repo's own package)
+
+```bash
+npx vps-hybrid-networking@1.0.0
+```
+
+Auto-detects your installed agents and copies the skill into each one's skills folder. Useful flags: `--all`, `--agent claude-code,antigravity`, `--list`, `--dry-run`. (If the npm package is not yet published, clone this repo and run `node bin/install.mjs --all` — it is the same code with the same result.)
+
+### Manual
+
+Copy the `skills/vps-hybrid-networking/` folder into your agent's skills directory (e.g. `~/.claude/skills/`, `~/.agents/skills/`, `~/.gemini/config/skills/`). Done — the skill is just files.
+
+## Installer security
+
+The npm installer is built to be boring and auditable:
+
+- **Zero dependencies** — Node.js standard library only; there is no dependency tree to compromise.
+- **No install hooks** — `package.json` defines no lifecycle scripts, so nothing runs implicitly on `npm install`/`npx`. The installer runs only when you invoke it.
+- **No network, no execution** — the installer never downloads anything and never spawns a process. It only copies the skill files bundled inside the package into a fixed allow-list of well-known agent folders, and it verifies every destination stays inside its allow-listed folder before copying.
+- **Pin the version** (`npx vps-hybrid-networking@1.0.0`) if you want reproducible installs, and read [`bin/install.mjs`](bin/install.mjs) — it is short on purpose.
+- Prefer not to run third-party installers at all? Use `npx skills add` (which pulls straight from GitHub) or the manual copy above.
+
 ## What's inside
 
-`SKILL.md` is a complete, self-contained runbook your agent can follow end to end:
+[`skills/vps-hybrid-networking/SKILL.md`](skills/vps-hybrid-networking/SKILL.md) is a complete, self-contained runbook your agent can follow end to end:
 
 - Architecture diagram and traffic flow (public vs. private)
 - Manual web-console checklists (Cloudflare DNS + API token, Zero Trust tunnel, Tailscale admin)
@@ -19,7 +91,7 @@ Instead of fighting the NAT, the architecture splits traffic into two layers:
   3. Installing Caddy with the Cloudflare DNS plugin
   4. A multi-tier Caddyfile (public vhosts + Tailscale-only private vhosts)
   5. Running `cloudflared` as a hardened systemd service
-- Smoke tests for public ingress, markdown content negotiation, and private ingress
+- Smoke tests for public ingress, markdown content negotiation, and private ingress — plus a bundled `scripts/verify-networking.sh` that checks host networking, Tailscale, Caddy, and the tunnel in four steps
 - A troubleshooting runbook covering the classic failure modes — Error 525 / TLS SNI handshake failure, DNS-01 challenge errors, `cloudflared` crash loops, and Tailscale connectivity loss
 
 ## Requirements
@@ -30,15 +102,25 @@ Instead of fighting the NAT, the architecture splits traffic into two layers:
 - A Tailscale account
 - A Debian / Ubuntu 22.04+ VPS with `sudo`
 
-## Using the skill
+All hostnames, IPs, and tokens in the skill are placeholders (`example.com`, `100.64.0.1`, `<YOUR_CLOUDFLARE_API_TOKEN>`) — substitute your own values on the server.
 
-Copy `SKILL.md` into your agent's skills directory (or point your agent at this repo) and ask it to set up or troubleshoot a NAT-ed VPS. All hostnames, IPs, and tokens in the file are placeholders (`example.com`, `100.64.0.1`, `<YOUR_CLOUDFLARE_API_TOKEN>`) — substitute your own values on the server.
+## Repository layout
+
+```
+skills/vps-hybrid-networking/   the skill itself (SKILL.md + scripts/)
+.claude-plugin/                 Claude Code plugin + marketplace manifests
+.antigravity-plugin/            Antigravity plugin manifest
+.agents/plugins/                Codex marketplace catalog
+plugin.json                     Agent Plugins standard manifest (Codex/Cursor portable layout)
+gemini-extension.json           Gemini CLI extension manifest
+package.json + bin/install.mjs  the zero-dependency npm/npx installer
+```
 
 ## Security notes
 
 - **Never commit real tokens.** This repo ships placeholders only. Keep real API tokens and tunnel tokens in protected files on the server (e.g. `/etc/cloudflared/token`, mode `600`), or reference them in the Caddyfile via `{env.CF_API_TOKEN}` instead of hardcoding the value.
 - Scope the Cloudflare token to a single zone with DNS Edit only — it cannot touch your account or other domains.
-- The `.gitignore` in this repo already excludes `.env` files, token files, certificates, and real `Caddyfile`s, so your working configs can't slip into a commit by accident.
+- The `.gitignore` in this repo excludes `.env` files, token files, certificates, and real `Caddyfile`s, so your working configs can't slip into a commit by accident.
 
 ## License
 
