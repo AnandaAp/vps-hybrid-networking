@@ -42,6 +42,12 @@ if (!existsSync(join(source, 'SKILL.md'))) {
 }
 
 const home = homedir();
+// Hermes Agent keeps its home in ~/.hermes on POSIX, but a native Windows
+// install lives in %LOCALAPPDATA%\hermes — resolve per platform.
+const hermesHome = process.platform === 'win32'
+  ? join(process.env.LOCALAPPDATA ?? join(home, 'AppData', 'Local'), 'hermes')
+  : join(home, '.hermes');
+
 const TARGETS = {
   'claude-code': { label: 'Claude Code', skillsDir: join(home, '.claude', 'skills'), detectDir: join(home, '.claude') },
   'antigravity': { label: 'Antigravity', skillsDir: join(home, '.gemini', 'config', 'skills'), detectDir: join(home, '.gemini') },
@@ -49,6 +55,17 @@ const TARGETS = {
   'gemini-cli': { label: 'Gemini CLI', skillsDir: join(home, '.gemini', 'skills'), detectDir: join(home, '.gemini') },
   'opencode': { label: 'OpenCode', skillsDir: join(home, '.config', 'opencode', 'skills'), detectDir: join(home, '.config', 'opencode') },
   'cursor': { label: 'Cursor', skillsDir: join(home, '.cursor', 'skills'), detectDir: join(home, '.cursor') },
+  'hermes': { label: 'Hermes Agent', skillsDir: join(hermesHome, 'skills'), detectDir: hermesHome },
+  'cline': { label: 'Cline', skillsDir: join(home, '.agents', 'skills'), detectDir: join(home, '.cline') },
+  'roo': { label: 'Roo Code', skillsDir: join(home, '.roo', 'skills'), detectDir: join(home, '.roo') },
+  'goose': { label: 'Goose', skillsDir: join(home, '.config', 'goose', 'skills'), detectDir: join(home, '.config', 'goose') },
+  'amp': { label: 'Amp', skillsDir: join(home, '.config', 'agents', 'skills'), detectDir: join(home, '.config', 'amp') },
+  'windsurf': { label: 'Windsurf', skillsDir: join(home, '.codeium', 'windsurf', 'skills'), detectDir: join(home, '.codeium') },
+  'kiro-cli': { label: 'Kiro CLI', skillsDir: join(home, '.kiro', 'skills'), detectDir: join(home, '.kiro') },
+  'qwen-code': { label: 'Qwen Code', skillsDir: join(home, '.qwen', 'skills'), detectDir: join(home, '.qwen') },
+  'github-copilot': { label: 'GitHub Copilot', skillsDir: join(home, '.copilot', 'skills'), detectDir: join(home, '.copilot') },
+  'trae': { label: 'Trae', skillsDir: join(home, '.trae', 'skills'), detectDir: join(home, '.trae') },
+  'continue': { label: 'Continue', skillsDir: join(home, '.continue', 'skills'), detectDir: join(home, '.continue') },
 };
 
 function parseArgs(argv) {
