@@ -67,10 +67,12 @@ hermes skills install AnandaAp/vps-hybrid-networking/skills/vps-hybrid-networkin
 
 Hermes security-scans skills on install. You can also register this repo as a reusable source once with `hermes skills tap add AnandaAp/vps-hybrid-networking`.
 
+> **Note on the Hermes security scan:** this skill is a root-level server-administration runbook, so Hermes' pattern scanner flags its subject matter (`sudo`, systemd units, files under `/etc`, network tunnels) and hub installs are currently blocked with a "dangerous" verdict. The flagged operations are the setup itself, run on your own server with your own tokens — but review the findings before trusting any skill, including this one. If you have reviewed it and want it anyway, install manually: copy `skills/vps-hybrid-networking/` into your Hermes skills folder (`%LOCALAPPDATA%\hermes\skills\` on Windows, `~/.hermes/skills\` elsewhere) and restart Hermes.
+
 ### npm / npx installer (this repo's own package)
 
 ```bash
-npx vps-hybrid-networking@1.0.1
+npx vps-hybrid-networking@1.0.2
 ```
 
 Auto-detects your installed agents and copies the skill into each one's skills folder. Targets: Claude Code, Antigravity, Codex / agents standard, Gemini CLI, OpenCode, Cursor, Hermes Agent, Cline, Roo Code, Goose, Amp, Windsurf, Kiro CLI, Qwen Code, GitHub Copilot, Trae, and Continue. Useful flags: `--all`, `--agent claude-code,antigravity`, `--list`, `--dry-run`. (If the npm package is not yet published, clone this repo and run `node bin/install.mjs --all` — it is the same code with the same result.)
@@ -86,7 +88,7 @@ The npm installer is built to be boring and auditable:
 - **Zero dependencies** — Node.js standard library only; there is no dependency tree to compromise.
 - **No install hooks** — `package.json` defines no lifecycle scripts, so nothing runs implicitly on `npm install`/`npx`. The installer runs only when you invoke it.
 - **No network, no execution** — the installer never downloads anything and never spawns a process. It only copies the skill files bundled inside the package into a fixed allow-list of well-known agent folders, and it verifies every destination stays inside its allow-listed folder before copying.
-- **Pin the version** (`npx vps-hybrid-networking@1.0.1`) if you want reproducible installs, and read [`bin/install.mjs`](bin/install.mjs) — it is short on purpose.
+- **Pin the version** (`npx vps-hybrid-networking@1.0.2`) if you want reproducible installs, and read [`bin/install.mjs`](bin/install.mjs) — it is short on purpose.
 - Prefer not to run third-party installers at all? Use `npx skills add` (which pulls straight from GitHub) or the manual copy above.
 
 ## What's inside
@@ -123,6 +125,7 @@ skills/vps-hybrid-networking/   the skill itself (SKILL.md + scripts/)
 .agents/plugins/                Codex marketplace catalog
 plugin.json                     Agent Plugins standard manifest (Codex/Cursor portable layout)
 gemini-extension.json           Gemini CLI extension manifest
+assets/logo.jpg                 plugin logo (Antigravity Marketplace)
 package.json + bin/install.mjs  the zero-dependency npm/npx installer
 ```
 

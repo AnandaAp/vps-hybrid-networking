@@ -152,8 +152,12 @@ sudo killall python3
 ### Stage 2: Private Network Setup via Tailscale
 
 ```bash
-# 1. Install official Tailscale package
-curl -fsSL https://tailscale.com/install.sh | sh
+# 1. Install Tailscale from its official apt repository (no pipe-to-shell installer).
+#    Replace <distro> with ubuntu or debian and <codename> with your
+#    release codename (e.g. noble for Ubuntu 24.04, bookworm for Debian 12).
+curl -fsSL https://pkgs.tailscale.com/stable/<distro>/<codename>.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+curl -fsSL https://pkgs.tailscale.com/stable/<distro>/<codename>.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
+sudo apt-get update && sudo apt-get install -y tailscale
 
 # 2. Connect machine to your Tailnet
 sudo tailscale up --hostname=my-vps --accept-routes
@@ -282,13 +286,13 @@ sudo apt-get update && sudo apt-get install -y cloudflared
 
 # 2. Store the tunnel token in a protected file
 sudo mkdir -p /etc/cloudflared
-sudo bash -c 'cat << "EOF" > /etc/cloudflared/token
+sudo tee /etc/cloudflared/token > /dev/null <<'EOF'
 <YOUR_CLOUDFLARE_TUNNEL_TOKEN>
-EOF'
+EOF
 sudo chmod 600 /etc/cloudflared/token
 
 # 3. Create Systemd Service File: /etc/systemd/system/cloudflared.service
-sudo bash -c 'cat << "EOF" > /etc/systemd/system/cloudflared.service
+sudo tee /etc/systemd/system/cloudflared.service > /dev/null <<'EOF'
 [Unit]
 Description=Cloudflare Tunnel client
 After=network-online.target
@@ -303,7 +307,7 @@ RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
-EOF'
+EOF
 
 # 4. Reload systemd and start the tunnel daemon
 sudo systemctl daemon-reload
